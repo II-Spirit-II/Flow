@@ -17,7 +17,8 @@ import holidays
 
 locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
-
+# This function is used to sanitize the input string by checking if it's a valid unicode slug.
+# If the input is not a valid slug, it returns an empty string.
 def clean_input(input_str):
     try:
         validate_unicode_slug(input_str)
@@ -26,14 +27,20 @@ def clean_input(input_str):
     return input_str
 
 
+# This function returns the number of pending remote work requests if the user is a manager.
+
 def pending_requests_count(user):
     return RemoteRequest.objects.filter(status='pending').count() if user.is_manager else 0
 
+
+# This function returns a list of dates for the 5-day work week starting from the provided date.
 
 def get_date_range(week_start):
     return [week_start + timedelta(days=i) for i in range(5)]
 
 
+# This function updates the list of remote work days for a given employee.
+# It validates the selected dates and returns error messages if the dates are invalid (e.g., past dates, holidays).
 def update_remote_days(employee, selected_dates, remove, request):
     today = date.today()
     fr_holidays = holidays.France(years=[d.year for d in selected_dates])
@@ -52,7 +59,7 @@ def update_remote_days(employee, selected_dates, remove, request):
 
     if error_message:
         messages.error(request, error_message)
-        return False, True  # no valid dates, error occurred
+        return False, True
 
     remote_days_to_update = RemoteDay.objects.filter(date__in=valid_dates)
     employee.remote_days.remove(*remote_days_to_update)
@@ -69,6 +76,7 @@ def update_remote_days(employee, selected_dates, remove, request):
     return bool(valid_dates), False
 
 
+# This view handles the setup of the user's work week. It allows the user to select which days they want to work.
 @login_required
 def setup(request, next_week=0):
     employee = request.user
@@ -105,6 +113,8 @@ def setup(request, next_week=0):
     return render(request, 'setup.html', context)
 
 
+# This view displays a calendar of employees' remote work days.
+# It can filter the employees based on a query string and whether they have an approved remote day for today.
 @login_required
 def calendar(request, next_week=0):
     query = request.GET.get('q', '')
@@ -113,10 +123,13 @@ def calendar(request, next_week=0):
     today = date.today()
 
     if show_remote:
+        # Get a queryset that only keeps Employees having an approved remote day for today
         employees = Employee.objects.filter(
             username__icontains=cleaned_query,
             is_superuser=False,
-            remote_days__date=today
+            remote_days__date=today,
+            remote_requests__status="approved",
+            remote_requests__remote_day__date=today
         )
     else:
         employees = Employee.objects.filter(
@@ -159,6 +172,7 @@ def calendar(request, next_week=0):
     return render(request, 'calendar.html', context)
 
 
+# This view allows the user to change their account password.
 @login_required
 def account(request):
     if request.method == 'POST':
@@ -181,6 +195,7 @@ def account(request):
     return render(request, 'account.html', context)
 
 
+# This view displays a list of all pending remote work requests. It is only accessible to managers.
 @login_required
 def requests(request):
     if not request.user.is_manager:
@@ -196,6 +211,7 @@ def requests(request):
     return render(request, 'requests.html', context)
 
 
+# This view displays the status of the user's remote work requests.
 @login_required
 def requests_status(request):
     status_filter = request.GET.get('status_filter', '')
@@ -214,6 +230,7 @@ def requests_status(request):
     return render(request, 'requests_status.html', context)
 
 
+# This view allows managers to approve or reject remote work requests.
 @login_required
 @user_passes_test(lambda u: u.is_manager, login_url=reverse_lazy('calendar'))
 @require_POST

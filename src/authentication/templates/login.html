@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block title %}Dawan | Login{% endblock %}
+
 {% block content %}
 {% load static %}
 <div class="login-page">
@@ -27,12 +29,16 @@
     </div>
 </div>
 
-{% if messages %}
-    {% for message in messages %}
-        {% if message.tags == 'error' %}
-            <p class="error-message">{{ message }}</p>
-        {% endif %}
-    {% endfor %}
-{% endif %}
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <p class="message success-message">{{ message }}</p>
+            {% elif message.tags == 'error' %}
+            <p class="message error-message">{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}
 
 {% endblock %}
