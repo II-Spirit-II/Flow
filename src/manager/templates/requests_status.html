@@ -3,7 +3,7 @@
 {% block title %}Dawan | Statut{% endblock %}
 
 {% block content %}
-    <h1>Status des demandes</h1>
+    <h1>Statut des demandes</h1>
 
 <form method="get">
     <div class="filter-container">
@@ -45,11 +45,11 @@
 
             {% if requests.has_previous %}
                 <a class="btn-prev" href="?page=1&status_filter={{ status_filter }}">&laquo; Première page</a>
-                <a class="btn-prev" href="?page={{ requests.previous_page_number }}&status_filter={{ status_filter }}">Page précédente</a>
+                <a class="btn-prev" href="?page={{ requests.previous_page_number }}&status_filter={{ status_filter }}">< Page précédente</a>
             {% endif %}
 
             {% if requests.has_next %}
-                <a class="btn-next" href="?page={{ requests.next_page_number }}&status_filter={{ status_filter }}">Page suivante</a>
+                <a class="btn-next" href="?page={{ requests.next_page_number }}&status_filter={{ status_filter }}">Page suivante ></a>
                 <a class="btn-next" href="?page={{ requests.paginator.num_pages }}&status_filter={{ status_filter }}">Dernière page &raquo;</a>
             {% endif %}
         </div>
