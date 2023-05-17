@@ -637,3 +637,41 @@ input[type="checkbox"]:checked + label:after {
     border-radius: 10px;
     border: 3px solid #330066;
   }
+
+/* Pagination */
+.pagination .step-links a {
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    background-color: var(--glass-background);
+    color: var(--text-color);
+    border-radius: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    backdrop-filter: blur(var(--blur));
+    transition: all 0.3s ease-in-out;
+    width: 250px;
+    margin: 20px;
+    text-align: center;
+}
+
+.pagination .step-links a:hover {
+    background-color: var(--green);
+    transform: scale(1.05);
+}
+
+.step-links .current {
+    display: block;
+    text-align: center;
+    margin-top: 40px;
+    font-weight: var(--font-weight);
+}
+
+.pagination .step-links .btn-prev:hover {
+    background-color: var(--red);
+    transform: scale(1.05);
+}
+
+.step-links {
+    text-align: center;
+}

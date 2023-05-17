@@ -3,7 +3,7 @@
 {% block title %}Dawan | Requêtes{% endblock %}
 
 {% block content %}
-    <h1>Configurer mes jours</h1>
+    <h1>Configurez vos jours</h1>
 
     <form method="post">
         {% csrf_token %}
@@ -26,7 +26,7 @@
             <tr>
                 <th></th>
                 {% for date in week_dates %}
-                <th {% if date == today %}class="today"{% endif %}>{{ date }}</th>
+                <th {% if date == today %}class="today"{% elif date < today or date|date:"Y-m-d" in holidays %}class="inactive-day"{% endif %}>{{ date }}</th>
                 {% endfor %}
             </tr>
             </thead>
@@ -34,7 +34,7 @@
             <tr>
                 <td>Vos jours</td>
                 {% for date in date_range %}
-                <td>
+                <td {% if date < today or date|date:"Y-m-d" in holidays %}class="inactive-day"{% endif %}>
                     <input type="checkbox" id="remote_day_{{ forloop.counter }}" name="remote_days" value="{{ date|date:'d F Y' }}">
                     <label for="remote_day_{{ forloop.counter }}"></label>
                 </td>
@@ -63,4 +63,5 @@
         {% endfor %}
     {% endif %}
 {% endblock %}
+
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
@@ -16,6 +17,7 @@ import locale
 import holidays
 
 locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+
 
 # This function is used to sanitize the input string by checking if it's a valid unicode slug.
 # If the input is not a valid slug, it returns an empty string.
@@ -87,6 +89,8 @@ def setup(request, next_week=0):
     today = date.today()
     week_start = today - timedelta(days=today.weekday()) + timedelta(weeks=next_week)
     date_range = get_date_range(week_start)
+    fr_holidays = holidays.France(years=[today.year, today.year + 1])
+    formatted_holidays = [h.strftime('%Y-%m-%d') for h in fr_holidays]
 
     if request.method == 'POST':
         selected_date_strings = request.POST.getlist('remote_days')
@@ -108,6 +112,7 @@ def setup(request, next_week=0):
         'week_dates': date_range,
         'today': today,
         'pending_requests_count': pending_requests_count(request.user),
+        'holidays': formatted_holidays,
     }
 
     return render(request, 'setup.html', context)
@@ -201,7 +206,11 @@ def requests(request):
     if not request.user.is_manager:
         return redirect(reverse_lazy('calendar'))
 
-    pending_requests = RemoteRequest.objects.filter(status='pending')
+    pending_requests_list = RemoteRequest.objects.filter(status='pending')
+    paginator = Paginator(pending_requests_list, 5)  # Show 5 requests per page.
+
+    page_number = request.GET.get('page')
+    pending_requests = paginator.get_page(page_number)
 
     context = {
         'pending_requests': pending_requests,
@@ -220,6 +229,11 @@ def requests_status(request):
 
     if status_filter:
         user_requests = user_requests.filter(status=status_filter)
+
+    paginator = Paginator(user_requests, 5)  # Show 5 requests per page.
+
+    page_number = request.GET.get('page')
+    user_requests = paginator.get_page(page_number)
 
     context = {
         'requests': user_requests,

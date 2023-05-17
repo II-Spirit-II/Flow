@@ -17,7 +17,7 @@
         {% for request in pending_requests %}
             <tr>
                 <td>{{ request.employee.username }}</td>
-                <td>{{ request.remote_day.date }}</td>
+                <td>{{ request.remote_day.date|date:"l"|capfirst }} {{ request.remote_day.date|date:"d F Y" }}</td>
                 <td>{{ request.comment }}</td>
                 <td>
                     <form method="post" action="{% url 'handle_request' request_id=request.id %}">
@@ -31,4 +31,24 @@
         {% endfor %}
         </tbody>
     </table>
+
+<div class="pagination">
+    <div class="step-links">
+
+        <span class="current">
+            Page {{ pending_requests.number }} / {{ pending_requests.paginator.num_pages }}
+        </span>
+
+        {% if pending_requests.has_previous %}
+            <a class="btn-prev" href="?page=1">&laquo; Première page</a>
+            <a class="btn-prev" href="?page={{ pending_requests.previous_page_number }}">Page précédente</a>
+        {% endif %}
+
+        {% if pending_requests.has_next %}
+            <a class="btn-next" href="?page={{ pending_requests.next_page_number }}">Page suivante</a>
+            <a class="btn-next" href="?page={{ pending_requests.paginator.num_pages }}">Dernière page &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+
 {% endblock %}
