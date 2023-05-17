@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Demandes de télétravail en attente</h1>
+    <table class="glass">
+        <thead>
+        <tr>
+            <th>Employé</th>
+            <th>Date</th>
+            <th>Commentaire</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for request in pending_requests %}
+            <tr>
+                <td>{{ request.employee.username }}</td>
+                <td>{{ request.remote_day.date }}</td>
+                <td>{{ request.comment }}</td>
+                <td>
+                    <form method="post" action="{% url 'handle_request' request_id=request.id %}">
+                        {% csrf_token %}
+                        <input class="comment" type="text" name="comment" placeholder="Commentaire (facultatif)">
+                        <button class="btn" type="submit" name="action" value="approve">Approuver</button>
+                        <button class="withdraw" type="submit" name="action" value="reject">Rejeter</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

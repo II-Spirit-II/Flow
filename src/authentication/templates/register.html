@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<div class="login-page">
+    <div class="form-container glass">
+        <div class="header-container">
+            <div>
+                <h2>Inscription</h2>
+                <h3>Créez votre compte !</h3>
+            </div>
+            <img src="{% static 'images/logo.png' %}" alt="Logo de l'entreprise" class="logo">
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="input-field">
+                <input id="name" name="{{ employee_form.username.html_name }}" type="text" placeholder="Identifiant" required />
+            </div>
+
+            <div class="input-field">
+                <input id="password" name="{{ employee_form.password1.html_name }}" type="password" placeholder="Mot de passe" required />
+
+                {% if employee_form.errors.password1 %}
+                <div class="error-messages">
+                    {% for error in employee_form.errors.password1 %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+
+            <div class="input-field">
+                <input id="confirm_password" name="{{ employee_form.password2.html_name }}" type="password" placeholder="Confirmation du mot de passe" required />
+
+                {% if employee_form.errors.password2 %}
+                <div class="error-messages">
+                    {% for error in employee_form.errors.password2 %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+
+            <div class="filter-container">
+                <select class="select" name="{{ employee_form.is_manager.html_name }}" id="{{ employee_form.is_manager.auto_id }}">
+                    <option value="True">Manager</option>
+                    <option value="False">Formateur</option>
+                </select>
+            </div>
+
+            <button class="btn-login" type="submit">S'inscrire</button>
+        </form>
+    </div>
+</div>
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <p class="message success-message">{{ message }}</p>
+            {% elif message.tags == 'error' %}
+            <p class="message error-message">{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+{% endblock %}

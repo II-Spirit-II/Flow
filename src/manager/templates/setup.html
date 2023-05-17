@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Configurer mes jours</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="button-container">
+            {% if next_week > 0 %}
+            <a class="btn-prev" href="{% url 'setup_next_week' next_week=next_week|add:-1 %}">< Semaine précédente</a>
+            {% endif %}
+            <a class="btn-next" href="{% url 'setup_next_week' next_week=next_week|add:1 %}">Semaine suivante ></a>
+        </div>
+
+        <table class="glass">
+            <thead>
+            <tr>
+                <th>Jour</th>
+                {% for day in week_days %}
+                <th>{{ day }}</th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th></th>
+                {% for date in week_dates %}
+                <th {% if date == today %}class="today"{% endif %}>{{ date }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Vos jours</td>
+                {% for date in date_range %}
+                <td>
+                    <input type="checkbox" id="remote_day_{{ forloop.counter }}" name="remote_days" value="{{ date|date:'d F Y' }}">
+                    <label for="remote_day_{{ forloop.counter }}"></label>
+                </td>
+                {% endfor %}
+            </tr>
+            </tbody>
+        </table>
+
+        <input class="comment" type="text" name="comment" placeholder="Commentaire (facultatif)">
+
+        <div class="button-container">
+            <button class="btn" type="submit">Je suis en télétravail</button>
+            <button class="withdraw" name="mark_on_site" value="1">Supprimer mon télétravail</button>
+        </div>
+
+    </form>
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <p class="message success-message">{{ message }}</p>
+            {% elif message.tags == 'error' %}
+            <p class="message error-message">{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+{% endblock %}

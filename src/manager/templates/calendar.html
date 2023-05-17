@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Calendrier{% endblock %}
+
+{% block content %}
+{% load static %}
+    <h1>Calendrier</h1>
+    <ul>
+        <li>
+            <img src="{% static 'images/remote.svg' %}" alt="Télétravail"> Télétravail
+        </li>
+        <li>
+            <img src="{% static 'images/onsite.svg' %}" alt="Sur place"> Sur place
+        </li>
+    </ul>
+
+    <form class="search-form" method="get" action="{% url 'calendar' %}">
+        <input class="searchbar" type="text" name="q" placeholder="Rechercher...">
+        <button class="btn" type="submit">Rechercher</button>
+    </form>
+
+{% if remote_employee_count > 0 %}
+<div class="remote-count">
+    <div class="status">
+        <div class="circle green"></div>
+        <p>{{ remote_employee_count }} collaborateurs en télétravail actuellement</p>
+    </div>
+    <form action="{% url 'calendar' %}" method="get">
+        <button class="btn-login" type="submit" name="show_remote" value="true">Montrer</button>
+    </form>
+</div>
+{% else %}
+<div class="remote-count">
+    <div class="status">
+        <div class="circle red"></div>
+        <p>Aucun collaborateur en télétravail actuellement</p>
+    </div>
+</div>
+{% endif %}
+
+<div class="button-container">
+    {% if next_week > 0 %}
+    <a class="btn-prev" href="{% url 'calendar_next_week' next_week=next_week|add:-1 %}">< Semaine précédente</a>
+    {% endif %}
+    <a class="btn-next" href="{% url 'calendar_next_week' next_week=next_week|add:1 %}">Semaine suivante ></a>
+</div>
+
+{% if employees_with_remote_days %}
+    <table class="glass">
+        <thead>
+        <tr>
+            <th>Collaborateurs</th>
+            {% for day in week_days %}
+            <th>{{ day }}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th></th>
+            {% for date in week_dates %}
+            <th {% if date == today %}class="today"{% elif date < today or date in holidays %}class="inactive-day"{% endif %}>{{ date }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for employee_with_remote_days in employees_with_remote_days %}
+        <tr>
+            <td class="{% if employee_with_remote_days.employee.uuid == request.user.uuid %}current-user{% endif %}">{{ employee_with_remote_days.employee.username }}</td>
+            {% for date in week_dates %}
+            {% if date|date:"Y-m-d" in employee_with_remote_days.remote_day_strs %}
+            <td class="remote-day {% if date < today or date in holidays %}inactive-day{% endif %}" ><img src="{% static 'images/remote.svg' %}" alt="Télétravail"></td>
+            {% else %}
+            <td {% if date < today or date in holidays %}class="inactive-day"{% endif %}><img src="{% static 'images/onsite.svg' %}" alt="Sur place"></td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="error-message">Aucun collaborateurs trouvé</div>
+{% endif %}
+{% endblock %}

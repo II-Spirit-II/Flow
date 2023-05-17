@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<div class="login-page">
+    <div class="form-container glass">
+        <div class="header-container">
+            <div>
+                <h2>Compte</h2>
+                <h3>Modifiez votre mot de passe</h3>
+            </div>
+            <img src="{% static 'images/logo.png' %}" alt="Logo de l'entreprise" class="logo">
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="input-field">
+                <input id="old_password" type="password" name="{{ form.old_password.html_name }}" placeholder="Ancien mot de passe" required />
+
+                {% if form.errors.old_password %}
+                <div class="error-messages">
+                    {% for error in form.errors.old_password %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+
+            <div class="input-field">
+                <input id="new_password1" type="password" name="{{ form.new_password1.html_name }}" placeholder="Nouveau mot de passe" required />
+
+                {% if form.errors.new_password1 %}
+                <div class="error-messages">
+                    {% for error in form.errors.new_password1 %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+
+            <div class="input-field">
+                <input id="new_password2" type="password" name="{{ form.new_password2.html_name }}" placeholder="Confirmer le mot de passe" required />
+
+                {% if form.errors.new_password2 %}
+                <div class="error-messages">
+                    {% for error in form.errors.new_password2 %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+
+            <button class="btn-login" type="submit">Modifier mon mot de passe</button>
+        </form>
+    </div>
+</div>
+
+{% block messages %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <p class="message success-message">{{ message }}</p>
+            {% elif message.tags == 'error' %}
+            <p class="message error-message">{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+{% endblock %}
