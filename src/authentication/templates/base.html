@@ -12,41 +12,41 @@
 
 {% if user.is_authenticated %}
 <header class="glass">
-        <div class="dropdown-container">
-            <div class="dropdown">
-                <img src="{% static 'images/account.svg' %}" alt="Menu" class="logo">
-                <div class="dropdown-content">
-                    <a href="{% url 'account' %}">Mon compte</a>
-                    {% if request.user.is_manager %}
-                    {% if pending_requests_count > 0 %}
-                        <a class="requests_notify" href="{% url 'requests' %}">Gérer les demandes</a>
-                    {% else %}
-                        <a href="{% url 'requests' %}">Gérer les demandes</a>
-                    {% endif %}
-                    {% endif %}
-                </div>
-            </div>
-
+    <div class="dropdown-container">
         <div class="dropdown">
-            <img src="{% static 'images/remote.svg' %}" alt="Menu" class="logo">
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <div class="dropdown-content">
+                <a href="{% url 'account' %}">Mon compte</a>
+                <hr class="dropdown-divider">
+                {% if request.user.is_manager %}
+                {% if pending_requests_count > 0 %}
+                <a class="requests_notify" href="{% url 'requests' %}">Gérer les demandes</a>
+                {% else %}
+                <a href="{% url 'requests' %}">Gérer les demandes</a>
+                {% endif %}
+                {% endif %}
                 <a href="{% url 'calendar' %}">Calendrier</a>
+                <hr class="dropdown-divider">
                 <a href="{% url 'setup' %}">Configurer mes jours</a>
                 <a href="{% url 'requests_status' %}">Mes demandes</a>
             </div>
         </div>
     </div>
 
-        {% if request.user.is_manager %}
-        {% if pending_requests_count > 0 %}
-            <div class="notification">
-                <img class="notification-img" src="{% static 'images/notification.svg' %}" alt="Notification">
-                <p>Vous avez des demandes en attente</p>
-            </div>
-        {% endif %}
-        {% endif %}
+    {% if request.user.is_manager %}
+    {% if pending_requests_count > 0 %}
+    <div class="notification">
+        <img class="notification-img" src="{% static 'images/notification.svg' %}" alt="Notification">
+        <p>Vous avez des demandes en attente</p>
+    </div>
+    {% endif %}
+    {% endif %}
 
-        <a class="logout-button" href="{% url 'logout' %}">Déconnexion</a>
+    <a class="logout-button" href="{% url 'logout' %}">Déconnexion</a>
 </header>
 {% endif %}
 
@@ -56,7 +56,7 @@
     {% endblock %}
 </main>
 
-    {% block messages %}{% endblock %}
+{% block messages %}{% endblock %}
 
 </body>
 </html>
