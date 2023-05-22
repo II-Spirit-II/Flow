@@ -1,10 +1,13 @@
+from django.conf import settings
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from .models import Employee, RemoteRequest
 from .models import RemoteDay
@@ -27,6 +30,28 @@ def clean_input(input_str):
     except ValidationError:
         return ''
     return input_str
+
+
+def send_status_update_email(self, remote_requests):
+    approved_requests = [r for r in remote_requests if r.status == 'approved']
+    rejected_requests = [r for r in remote_requests if r.status == 'rejected']
+
+    context = {
+        'employee': self,
+        'approved_dates': [r.remote_day.date.strftime("%d %B %Y") for r in approved_requests],
+        'rejected_dates': [r.remote_day.date.strftime("%d %B %Y") for r in rejected_requests],
+    }
+
+    email_body = render_to_string('requests_status_email.html', context)
+
+    send_mail(
+        'Mise à jour du statut de vos demandes de télétravail',
+        '',
+        settings.EMAIL_HOST_USER,
+        [self.email],
+        fail_silently=False,
+        html_message=email_body,
+    )
 
 
 # This function returns the number of pending remote work requests if the user is a manager.
@@ -67,13 +92,39 @@ def update_remote_days(employee, selected_dates, remove, request):
     employee.remote_days.remove(*remote_days_to_update)
     RemoteRequest.objects.filter(employee=employee, remote_day__in=remote_days_to_update).delete()
 
+    new_requests = []  # Liste pour stocker les nouvelles demandes
+
     if not remove:
         for selected_date in valid_dates:
             remote_day, created = RemoteDay.objects.get_or_create(date=selected_date)
             employee.remote_days.add(remote_day)
             comment = request.POST.get('comment', '')
-            RemoteRequest.objects.get_or_create(employee=employee, remote_day=remote_day, status='pending',
-                                                comment=comment)
+            remote_request, created = RemoteRequest.objects.get_or_create(employee=employee, remote_day=remote_day,
+                                                                          status='pending', comment=comment)
+            if created:  # Si une nouvelle demande de télétravail a été créée
+                new_requests.append(remote_request)  # Ajouter à la liste des nouvelles demandes
+
+    # Si de nouvelles demandes ont été créées, envoyer un email
+    if new_requests:
+        managers = Employee.objects.filter(is_manager=True)
+
+        for manager in managers:
+            context = {
+                'employee': employee,
+                'dates': [r.remote_day.date.strftime("%d %B %Y") for r in new_requests],  # Passer toutes les dates de la liste
+                'comments': [r.comment for r in new_requests],  # Passer tous les commentaires de la liste
+            }
+
+            email_body = render_to_string('requests_email.html', context)
+
+            send_mail(
+                'Nouvelles demandes de télétravail',
+                '',
+                settings.EMAIL_HOST_USER,
+                [manager.email],
+                fail_silently=False,
+                html_message=email_body,
+            )
 
     return bool(valid_dates), False
 
@@ -206,8 +257,8 @@ def requests(request):
     if not request.user.is_manager:
         return redirect(reverse_lazy('calendar'))
 
-    pending_requests_list = RemoteRequest.objects.filter(status='pending')
-    paginator = Paginator(pending_requests_list, 5)  # Show 5 requests per page.
+    pending_requests_list = RemoteRequest.objects.filter(status='pending').order_by('id')
+    paginator = Paginator(pending_requests_list, 5)
 
     page_number = request.GET.get('page')
     pending_requests = paginator.get_page(page_number)
@@ -268,5 +319,28 @@ def handle_request(request, request_id):
 
     with transaction.atomic():
         remote_request.save()
+
+    # Récupérer l'employé concerné par la demande
+    employee = remote_request.employee
+
+    # Préparer le corps du mail
+    context = {
+        'employee': employee,
+        'date': remote_request.remote_day.date.strftime("%d %B %Y"),
+        'status': remote_request.status,  # Ajouter le statut à l'objet contexte
+        'comment': remote_request.comment,  # Utiliser le commentaire de la demande
+    }
+
+    email_body = render_to_string('requests_status_email.html', context)
+
+    # Envoyer un email à l'employé concerné
+    send_mail(
+        'Mise à jour du statut de vos demandes de télétravail',
+        '',
+        settings.EMAIL_HOST_USER,
+        [employee.email],
+        fail_silently=False,
+        html_message=email_body,
+    )
 
     return redirect('requests')
