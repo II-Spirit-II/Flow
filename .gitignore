@@ -8,11 +8,5 @@
 venv/
 
 # Database files
-/data/db
-
-# Python
-*.pyc
-__pycache__/
-*.pyo
-*.pyc
-*.pyd
+src/data/db
+src/manager/__pycache__/
