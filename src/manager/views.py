@@ -16,10 +16,7 @@ from django.urls import reverse_lazy
 from datetime import date, datetime, timedelta
 from django.core.validators import validate_unicode_slug
 from django.core.exceptions import ValidationError
-import locale
 import holidays
-
-locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
 
 # This function is used to sanitize the input string by checking if it's a valid unicode slug.

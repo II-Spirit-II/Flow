@@ -15,7 +15,7 @@
     </ul>
 
     <form class="search-form" method="get" action="{% url 'calendar' %}">
-        <input class="searchbar" type="text" name="q" placeholder="Rechercher...">
+        <input class="searchbar" type="text" name="q" placeholder="Rechercher un collaborateur...">
         <button class="btn" type="submit">Rechercher</button>
     </form>
 
@@ -26,7 +26,7 @@
         <p>{{ remote_employee_count }} collaborateurs en télétravail actuellement</p>
     </div>
     <form action="{% url 'calendar' %}" method="get">
-        <button class="btn-login" type="submit" name="show_remote" value="true">Montrer</button>
+        <button class="btn-login" type="submit" name="show_remote" value="true">Montrer les collaborateurs</button>
     </form>
 </div>
 {% else %}

@@ -21,6 +21,10 @@
             </div>
 
             <div class="input-field">
+                <input id="email" name="{{ employee_form.email.html_name }}" type="email" placeholder="Email" required />
+            </div>
+
+            <div class="input-field">
                 <input id="password" name="{{ employee_form.password1.html_name }}" type="password" placeholder="Mot de passe" required />
 
                 {% if employee_form.errors.password1 %}
@@ -48,8 +52,8 @@
 
             <div class="filter-container">
                 <select class="select" name="{{ employee_form.is_manager.html_name }}" id="{{ employee_form.is_manager.auto_id }}">
-                    <option value="True">Manager</option>
                     <option value="False">Formateur</option>
+                    <option value="True">Manager</option>
                 </select>
             </div>
 

@@ -1,0 +1,22 @@
+# IDE related
+.idea/
+
+# Python byte compiled
+*.pyc
+__pycache__/
+
+# SQLite database
+*.sqlite3
+
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+
+# Database files
+/data/db
+
+# Log files
+*.log
+

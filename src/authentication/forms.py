@@ -13,7 +13,7 @@ class EmployeeForm(UserCreationForm):
 
     class Meta:
         model = Employee
-        fields = ['username', 'password1', 'password2', 'is_manager']
+        fields = ['username', 'email', 'password1', 'password2', 'is_manager']
 
     def clean_username(self):
         username = self.cleaned_data['username']
