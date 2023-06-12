@@ -9,6 +9,7 @@ xflow is a powerful tool designed to enable managers and team leaders to effecti
 - **Dynamic calendar view:** The application provides a global calendar view of all employees.
 - **Live request status:** Managers can view the status of remote work requests in real time.
 - **Employee account management:** Employees can manage their accounts, including changing their password.
+- **Email notification:** Users receive email notifications for important updates and events.
 
 ## 🛠️ How it works
 
@@ -32,12 +33,33 @@ The application provides several views:
 
 ## 💾 Installation
 
-To install the application, you will need to have Python and Django installed on your machine. You can then clone this repository, navigate to the project directory, and run the following command to start the Django development server:
+To install the application, you will need to have Docker installed on your machine. Docker allows you to package the application and its dependencies into a container, making it easy to deploy and run consistently across different environments.
 
-```bashd
-python manage.py runserver
+If you don't have Docker installed, you can follow the installation instructions for your operating system:
+
+- [Install Docker for Windows](https://docs.docker.com/docker-for-windows/install/)
+- [Install Docker for macOS](https://docs.docker.com/docker-for-mac/install/)
+- [Install Docker for Linux](https://docs.docker.com/engine/install/)
+
+Once you have Docker set up, you can proceed with the following steps:
+
+1 - Clone this repository to your local machine.
+2 - Navigate to `Flow/src/` with:
+
+```
+cd Flow/src
 ```
 
-You can then access the application in your web browser at http://localhost:8000.
+Run the following command to build and start the application using Docker Compose:
 
-🚀 (In progress) I am currently working on an HTTPS version of the project that could be easily deployed.
+```
+docker-compose up --build -d
+```
+
+This command will build the Docker image for the application and start the container in detached mode (in the background). You don't need to do anything else ✨ !
+
+## 🌐 Access
+
+The application will be launched inside a Docker container. You can access it in your web browser at http://localhost.
+
+🚀 (In progress) I am currently working on an HTTPS version of the project.
