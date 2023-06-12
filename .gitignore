@@ -8,5 +8,6 @@
 venv/
 
 # Database files
-src/data/db
+src/data/db/*
 src/manager/__pycache__/
+src/Flow/__pycache__/
