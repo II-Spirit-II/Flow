@@ -9,7 +9,7 @@ services:
       - .dbenv
   web:
     build: .
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py migrate && python manage.py runserver localhost:8000"
     volumes:
       - .:/code
     ports:
@@ -22,10 +22,10 @@ services:
       dockerfile: Dockerfile.nginx
     volumes:
       - static_volume:/home/staticfiles
-      - ./ssl:/etc/nginx/ssl:ro  # Ajoutez cette ligne
+      - ./ssl:/etc/nginx/ssl:ro
     ports:
       - "80:80"
-      - "443:443"  # Ajoutez cette ligne
+      - "443:443"
     depends_on:
       - web
 
