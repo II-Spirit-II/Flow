@@ -5,29 +5,71 @@ if [ $EUID -ne 0 ]; then
   exit 1
 fi
 
-# Afficher un message pour lancer la génération des certificats SSL
-echo -e "Appuyez sur une touche pour lancer la génération des certificats SSL"
-read -n 1 -s
+while true; do
+  # Afficher le menu
+  echo -e "\e[33mQue voulez-vous faire ?\n\e[0m"
+  echo -e "\e[34m1. Générer un certificat SSL autosigné"
+  echo -e "2. Initialiser l'environement\n"
+  echo -e "\e[31m\nQ. Quitter\n\e[0m"
 
-# Créer le répertoire "ssl" s'il n'existe pas déjà
-if [ ! -d "ssl" ]; then
-  mkdir ssl
-fi
+  # Lire le choix de l'utilisateur
+  read -p $'\e[33mVotre choix : \e[0m' CHOICE
 
-# Se placer dans le répertoire "ssl"
-cd ssl
+  # Exécuter l'action correspondant au choix de l'utilisateur
+  case "$CHOICE" in
+    1)
+      # Créer le répertoire "ssl" s'il n'existe pas déjà
+      if [ ! -d "ssl" ]; then
+        mkdir ssl
+      fi
 
-# Générer une clé privée RSA de 2048 bits et la stocker dans le répertoire "ssl"
-openssl genrsa -out server.key 2048
+      # Se placer dans le répertoire "ssl"
+      cd ssl
 
-# Créer une demande de signature de certificat (CSR) pour la clé privée
-openssl req -new -key server.key -out server.csr
+      # Générer une clé privée RSA de 2048 bits et la stocker dans le répertoire "ssl"
+      openssl genrsa -out server.key 2048
 
-# Générer un certificat SSL autosigné valide pour 365 jours
-openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+      # Créer une demande de signature de certificat (CSR) pour la clé privée
+      openssl req -new -key server.key -out server.csr
 
-# Afficher le contenu du certificat pour vérifier qu'il a été correctement généré
-openssl x509 -in server.crt -text -noout
+      # Générer un certificat SSL autosigné valide pour 365 jours
+      openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 
-# Afficher un message de fin en vert
-echo -e "\e[32mToutes les générations ont été exécutées avec succès !\e[0m"
+      # Afficher le contenu du certificat pour vérifier qu'il a été correctement généré
+      openssl x509 -in server.crt -text -noout
+
+      # Afficher un message de fin en vert
+      echo -e "\e[32mToutes les générations ont été exécutées avec succès !\e[0m"
+      ;;
+    2)
+      # Demander les informations d'environnement à l'utilisateur
+      read -p $'\e[33mVeuillez entrer votre nom d\'utilisateur de la database : \e[0m' POSTGRES_USER
+      read -sp $'\e[33mVeuillez entrer votre mot de passe de la database : \e[0m' POSTGRES_PASSWORD
+
+      # Enregistrer ces informations dans le fichier d'environnement
+      echo "POSTGRES_DB=postgres" > .dbenv
+      echo "POSTGRES_USER=$POSTGRES_USER" >> .dbenv
+      echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .dbenv
+
+      echo -e "\e[32m\nLes informations d'environnement ont été enregistrées avec succès !\e[0m"
+      ;;
+    q|Q)
+      echo -e "\e[31m\nBye !\e[0m"
+      exit 0
+      ;;
+    *)
+      # Afficher un message d'erreur en rouge si le choix est invalide
+      echo -e "\e[31mChoix invalide !\e[0m"
+      ;;
+  esac
+
+  # Demander à l'utilisateur s'il veut revenir au menu principal ou quitter le script
+  read -p $'\e[33mAppuyez sur Entrée pour revenir au menu principal ou tapez "q" pour quitter : \e[0m' REPLY
+
+  # Sortir du script si l'utilisateur tape "q" ou "Q"
+  if [[ "$REPLY" =~ ^[qQ]$ ]]; then
+    echo -e "\e[31mBye !\e[0m"
+    exit 0
+  fi
+
+done
