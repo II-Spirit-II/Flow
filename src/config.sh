@@ -43,6 +43,7 @@ while true; do
       ;;
     2)
       # Demander les informations d'environnement à l'utilisateur
+      read -p $'\e[33mVeuillez entrer l\'IP du server : \e[0m' SERVER_IP
       read -p $'\e[33mVeuillez entrer votre nom d\'utilisateur de la database : \e[0m' POSTGRES_USER
       read -sp $'\e[33mVeuillez entrer votre mot de passe de la database : \e[0m' POSTGRES_PASSWORD
 
@@ -50,6 +51,7 @@ while true; do
       echo "POSTGRES_DB=postgres" > .dbenv
       echo "POSTGRES_USER=$POSTGRES_USER" >> .dbenv
       echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .dbenv
+      sed -i "s/^CSRF_TRUSTED_ORIGINS =.*/CSRF_TRUSTED_ORIGINS = ['https:\/\/*.$SERVER_IP']/" Flow/settings.py
 
       echo -e "\e[32m\nLes informations d'environnement ont été enregistrées avec succès !\e[0m"
       ;;
