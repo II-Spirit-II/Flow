@@ -50,7 +50,16 @@ Once you have Docker set up, you can proceed with the following steps:
 cd Flow/src
 ```
 
-Run the following command to build and start the application using Docker Compose:
+Run the following command to execute configuration script:
+```
+./config.sh
+```
+
+The script is used to set up everything needed to run the stack in particular:
+- SSL folder in order to set up the HTTPS protocol (you can skip this step if you have your domain name/official SSL certificate)
+- Database informations like user and password
+
+Next, run the following command to build and start the application using Docker Compose:
 
 ```
 docker-compose up --build -d
@@ -60,6 +69,5 @@ This command will build the Docker image for the application and start the conta
 
 ## 🌐 Access
 
-The application will be launched inside a Docker container. You can access it in your web browser at http://localhost.
+The application will be launched inside a Docker container. You can access it in your web browser at https://your-ip
 
-🚀 (In progress) I am currently working on an HTTPS version of the project.
