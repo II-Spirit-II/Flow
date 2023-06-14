@@ -5,6 +5,8 @@ if [ $EUID -ne 0 ]; then
   exit 1
 fi
 
+chmod -R 755 data
+
 while true; do
   # Afficher le menu
   echo -e "\e[33mQue voulez-vous faire ?\n\e[0m"
