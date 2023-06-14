@@ -12,3 +12,6 @@ src/data/db/*
 src/manager/__pycache__/
 src/Flow/__pycache__/
 src/authentication/__pycache__/
+
+# SSL
+src/ssl

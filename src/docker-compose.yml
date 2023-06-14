@@ -24,8 +24,10 @@ services:
       dockerfile: Dockerfile.nginx
     volumes:
       - static_volume:/home/staticfiles
+      - ./ssl:/etc/nginx/ssl:ro  # Ajoutez cette ligne
     ports:
       - "80:80"
+      - "443:443"  # Ajoutez cette ligne
     depends_on:
       - web
 
