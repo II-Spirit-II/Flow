@@ -45,11 +45,12 @@ while true; do
       ;;
     2)
       # Demander les informations d'environnement à l'utilisateur
-      read -p $'\e[33mVeuillez entrer l\'IP du server : \e[0m' SERVER_IP
+      read -p $'\e[33mVeuillez entrer l\'IP/domaine du server : \e[0m' SERVER_IP
       read -p $'\e[33mVeuillez entrer votre nom d\'utilisateur de la database : \e[0m' POSTGRES_USER
       read -sp $'\e[33mVeuillez entrer votre mot de passe de la database : \e[0m' POSTGRES_PASSWORD
 
       # Enregistrer ces informations dans le fichier d'environnement
+      touch .dbenv
       echo "POSTGRES_DB=postgres" > .dbenv
       echo "POSTGRES_USER=$POSTGRES_USER" >> .dbenv
       echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .dbenv
