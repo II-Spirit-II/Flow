@@ -11,7 +11,8 @@ while true; do
   # Afficher le menu
   echo -e "\e[33mQue voulez-vous faire ?\n\e[0m"
   echo -e "\e[34m1. Générer un certificat SSL autosigné"
-  echo -e "2. Initialiser l'environement\n"
+  echo -e "2. Initialiser l'environnement"
+  echo -e "3. Supprimer l'environnement\n"
   echo -e "\e[31m\nQ. Quitter\n\e[0m"
 
   # Lire le choix de l'utilisateur
@@ -39,11 +40,15 @@ while true; do
 
       # Afficher le contenu du certificat pour vérifier qu'il a été correctement généré
       openssl x509 -in server.crt -text -noout
+      cd ..
 
       # Afficher un message de fin en vert
       echo -e "\e[32mToutes les générations ont été exécutées avec succès !\e[0m"
       ;;
     2)
+      # Indiquer les interfaces IP de la machine
+      echo -e '\e[33mVoici vos interfaces :\n\e[0m'
+      ip -c -br a
       # Demander les informations d'environnement à l'utilisateur
       read -p $'\e[33mVeuillez entrer l\'IP/domaine du server : \e[0m' SERVER_IP
       read -p $'\e[33mVeuillez entrer votre nom d\'utilisateur de la database : \e[0m' POSTGRES_USER
@@ -57,6 +62,23 @@ while true; do
       sed -i "s/^CSRF_TRUSTED_ORIGINS =.*/CSRF_TRUSTED_ORIGINS = ['https:\/\/*.$SERVER_IP']/" Flow/settings.py
 
       echo -e "\e[32m\nLes informations d'environnement ont été enregistrées avec succès !\e[0m"
+      ;;
+    3)
+      # Demander une confirmation avant de supprimer l'environnement
+      read -p $'\e[33mÊtes-vous sûr de vouloir supprimer l\'environnement ? (appuyez sur Entrée pour continuer ou tapez "q" pour quitter) : \e[0m' CONFIRMATION
+
+      # Sortir du script si l'utilisateur tape "q" ou "Q"
+      if [[ "$CONFIRMATION" =~ ^[qQ]$ ]]; then
+        echo -e "\e[31mAnnulation de la suppression.\e[0m"
+        continue
+      fi
+
+      # Supprimer les répertoires et fichiers de l'environnement
+      rm -rf data
+      rm -rf ssl
+      rm .dbenv
+
+      echo -e "\e[32m\nL'environnement a été supprimé avec succès !\e[0m"
       ;;
     q|Q)
       echo -e "\e[31m\nBye !\e[0m"
