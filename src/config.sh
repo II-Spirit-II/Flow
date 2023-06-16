@@ -14,7 +14,8 @@ while true; do
   echo -e "\e[33mQue voulez-vous faire ?\n\e[0m"
   echo -e "\e[34m1. Générer un certificat SSL autosigné"
   echo -e "2. Initialiser l'environnement"
-  echo -e "3. Supprimer l'environnement\n"
+  echo -e "3. Supprimer les données sensibles\n"
+  echo -e "\e[31m4. Supprimer l'environement\e[0m"
   echo -e "\e[31m\nQ. Quitter\n\e[0m"
 
   # Lire le choix de l'utilisateur
@@ -66,6 +67,26 @@ while true; do
       echo -e "\e[32m\nLes informations d'environnement ont été enregistrées avec succès !\e[0m"
       ;;
     3)
+      # Demander une confirmation avant de supprimer les données sensibles
+      read -p $'\e[33mÊtes-vous sûr de vouloir supprimer les données sensibles ? Cette action doit être réalisée lorsque la stack a déjà été démarrée au moins une fois. Après cela, les informations sensibles comme les mots de passes ne pourront plus être détournées et ne seront plus stockées dans les fichiers d\'environnement. Appuyez sur Entrée pour continuer ou tapez \'q\' pour quitter :\e[0m' CONFIRMATION
+
+      # Sortir du script si l'utilisateur tape "q" ou "Q"
+      if [[ "$CONFIRMATION" =~ ^[qQ]$ ]]; then
+        echo -e "\e[31mAnnulation de la suppression des données sensibles.\e[0m"
+        continue
+      fi
+
+      # Supprimer les données sensibles
+      sed -i '/env_file:/d; s/- .dbenv//' docker-compose.yml
+      rm .dbenv
+
+      echo -e "\e[32m\nLes données sensibles ont été supprimées avec succès !\e[0m"
+      ;;
+    q|Q)
+      echo -e "\e[31m\nBye !\e[0m"
+      exit 0
+      ;;
+    4)
       # Demander une confirmation avant de supprimer l'environnement
       read -p $'\e[33mÊtes-vous sûr de vouloir supprimer l\'environnement ? (appuyez sur Entrée pour continuer ou tapez "q" pour quitter) : \e[0m' CONFIRMATION
 
@@ -81,10 +102,6 @@ while true; do
       rm .dbenv
 
       echo -e "\e[32m\nL'environnement a été supprimé avec succès !\e[0m"
-      ;;
-    q|Q)
-      echo -e "\e[31m\nBye !\e[0m"
-      exit 0
       ;;
     *)
       # Afficher un message d'erreur en rouge si le choix est invalide
