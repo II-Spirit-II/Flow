@@ -56,6 +56,8 @@ while true; do
       read -p $'\e[33mVeuillez entrer l\'IP/domaine du server : \e[0m' SERVER_IP
       read -p $'\e[33mVeuillez entrer votre nom d\'utilisateur de la database : \e[0m' POSTGRES_USER
       read -sp $'\e[33mVeuillez entrer votre mot de passe de la database : \e[0m' POSTGRES_PASSWORD
+      read -p $'\e[33m\nVeuillez entrer l\'identifiant du sender (émetteur des notifications mails) : \e[0m' EMAIL_HOST_USER
+      read -sp $'\e[33mVeuillez entrer le mot de passe du sender (émetteur des notifications mails) : \e[0m' EMAIL_HOST_PASSWORD
 
       # Enregistrer ces informations dans le fichier d'environnement
       touch .dbenv
@@ -63,6 +65,10 @@ while true; do
       echo "POSTGRES_USER=$POSTGRES_USER" >> .dbenv
       echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .dbenv
       sed -i "s/^CSRF_TRUSTED_ORIGINS =.*/CSRF_TRUSTED_ORIGINS = ['https:\/\/*.$SERVER_IP']/" Flow/settings.py
+      sed -i '/EMAIL_HOST_USER/c\EMAIL_HOST_USER = '\'$EMAIL_HOST_USER''\'' ' Flow/settings.py
+      sed -i '/EMAIL_HOST_PASSWORD/c\EMAIL_HOST_PASSWORD = '\'$EMAIL_HOST_PASSWORD''\'' ' Flow/settings.py
+
+
 
       echo -e "\e[32m\nLes informations d'environnement ont été enregistrées avec succès !\e[0m"
       ;;
