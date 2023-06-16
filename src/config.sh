@@ -5,7 +5,9 @@ if [ $EUID -ne 0 ]; then
   exit 1
 fi
 
-chmod -R 755 data
+if [ -d "data" ]; then
+    chmod -R 755 data
+fi
 
 while true; do
   # Afficher le menu
