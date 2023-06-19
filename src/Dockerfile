@@ -16,8 +16,5 @@ RUN pip install -r requirements.txt
 # Copy project
 COPY . /code/
 
-# collect static files
-RUN python manage.py collectstatic --noinput
-
 # run gunicorn
 CMD gunicorn Flow.wsgi:application --bind 0.0.0.0:8000
