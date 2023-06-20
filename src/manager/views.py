@@ -17,6 +17,11 @@ from datetime import date, datetime, timedelta
 from django.core.validators import validate_unicode_slug
 from django.core.exceptions import ValidationError
 import holidays
+import locale
+import smtplib
+
+# Set the locale to French
+locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
 
 # This function is used to sanitize the input string by checking if it's a valid unicode slug.
@@ -27,7 +32,6 @@ def clean_input(input_str):
     except ValidationError:
         return ''
     return input_str
-
 
 def send_status_update_email(self, remote_requests):
     approved_requests = [r for r in remote_requests if r.status == 'approved']
@@ -41,15 +45,17 @@ def send_status_update_email(self, remote_requests):
 
     email_body = render_to_string('requests_status_email.html', context)
 
-    send_mail(
-        'Mise à jour du statut de vos demandes de télétravail',
-        '',
-        settings.EMAIL_HOST_USER,
-        [self.email],
-        fail_silently=False,
-        html_message=email_body,
-    )
-
+    try:
+        send_mail(
+            'Mise à jour du statut de vos demandes de télétravail',
+            '',
+            settings.EMAIL_HOST_USER,
+            [self.email],
+            fail_silently=False,
+            html_message=email_body,
+        )
+    except smtplib.SMTPRecipientsRefused:
+        pass  # Ignore l'erreur si l'e-mail ne peut pas être envoyé.
 
 # This function returns the number of pending remote work requests if the user is a manager.
 
@@ -144,9 +150,12 @@ def setup(request, next_week=0):
         selected_date_strings = request.POST.getlist('remote_days')
         selected_dates = [datetime.strptime(date_str, '%d %B %Y').date() for date_str in selected_date_strings]
         remove = request.POST.get('mark_on_site')
-        changes_made, error_occurred = update_remote_days(employee, selected_dates, remove, request)
+        try:
+            changes_made, error_occurred = update_remote_days(employee, selected_dates, remove, request)
+        except smtplib.SMTPRecipientsRefused:
+            changes_made, error_occurred = True, True  # changes_made set to True
 
-        if changes_made and not error_occurred:
+        if changes_made:
             messages.success(request, "Les jours cochés ont été marqués comme sur place." if remove else "Votre demande à bien été envoyée aux managers.")
         employee.save()
         return redirect('setup')
@@ -331,13 +340,20 @@ def handle_request(request, request_id):
     email_body = render_to_string('requests_status_email.html', context)
 
     # Envoyer un email à l'employé concerné
-    send_mail(
-        'Mise à jour du statut de vos demandes de télétravail',
-        '',
-        settings.EMAIL_HOST_USER,
-        [employee.email],
-        fail_silently=False,
-        html_message=email_body,
-    )
+    with transaction.atomic():
+        remote_request.save()
+
+    try:
+        # Envoyer un email à l'employé concerné
+        send_mail(
+            'Mise à jour du statut de vos demandes de télétravail',
+            '',
+            settings.EMAIL_HOST_USER,
+            [employee.email],
+            fail_silently=False,
+            html_message=email_body,
+        )
+    except smtplib.SMTPRecipientsRefused:
+        pass  # Ignorer l'erreur d'envoi de courrier électronique
 
     return redirect('requests')
