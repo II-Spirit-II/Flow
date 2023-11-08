@@ -1,13 +1,13 @@
 services:
   db:
     image: postgres
-    restart: unless-stopped
+    restart: always
     volumes:
       - ./data/db:/var/lib/postgresql/data
       
   web:
     build: .
-    restart: unless-stopped
+    restart: always
     command: bash -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn Flow.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - .:/code
@@ -21,7 +21,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.nginx
-    restart: unless-stopped
+    restart: always
     volumes:
       - static_volume:/home/staticfiles
       - ./ssl:/etc/nginx/ssl:ro
