@@ -4,6 +4,8 @@ services:
     restart: always
     volumes:
       - ./data/db:/var/lib/postgresql/data
+    env_file:
+      - .dbenv
       
   web:
     build: .
