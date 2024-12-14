@@ -3,52 +3,55 @@
 {% block title %}Dawan | Requêtes{% endblock %}
 
 {% block content %}
-    <h1>Demandes de télétravail en attente</h1>
-    <table class="glass">
-        <thead>
-        <tr>
-            <th>Employé</th>
-            <th>Date</th>
-            <th>Commentaire</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for request in pending_requests %}
+    {% if request.user.is_manager %}
+        <h1>Demandes de télétravail en attente</h1>
+        <table class="glass">
+            <thead>
             <tr>
-                <td>{{ request.employee.username }}</td>
-                <td>{{ request.remote_day.date|date:"l"|capfirst }} {{ request.remote_day.date|date:"d F Y" }}</td>
-                <td>{{ request.comment }}</td>
-                <td>
-                    <form method="post" action="{% url 'handle_request' request_id=request.id %}">
-                        {% csrf_token %}
-                        <input class="comment" type="text" name="comment" placeholder="Commentaire (facultatif)">
-                        <button class="btn" type="submit" name="action" value="approve">Approuver</button>
-                        <button class="withdraw" type="submit" name="action" value="reject">Rejeter</button>
-                    </form>
-                </td>
+                <th>Employé</th>
+                <th>Date</th>
+                <th>Commentaire</th>
+                <th>Action</th>
             </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for request in pending_requests %}
+                <tr>
+                    <td>{{ request.employee.username }}</td>
+                    <td>{{ request.remote_day.date|date:"l"|capfirst }} {{ request.remote_day.date|date:"d F Y" }}</td>
+                    <td>{{ request.comment }}</td>
+                    <td>
+                        <form method="post" action="{% url 'handle_request' request_id=request.id %}">
+                            {% csrf_token %}
+                            <input class="comment" type="text" name="comment" placeholder="Commentaire (facultatif)">
+                            <button class="btn" type="submit" name="action" value="approve">Approuver</button>
+                            <button class="withdraw" type="submit" name="action" value="reject">Rejeter</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
-<div class="pagination">
-    <div class="step-links">
+        <div class="pagination">
+            <div class="step-links">
 
-        <span class="current">
-            Page {{ pending_requests.number }} / {{ pending_requests.paginator.num_pages }}
-        </span>
+                <span class="current">
+                    Page {{ remote_requests.number }} / {{ remote_requests.paginator.num_pages }}
+                </span>
 
-        {% if pending_requests.has_previous %}
-            <a class="btn-prev" href="?page=1">&laquo; Première page</a>
-            <a class="btn-prev" href="?page={{ pending_requests.previous_page_number }}">< Page précédente</a>
-        {% endif %}
+                {% if remote_requests.has_previous %}
+                    <a class="btn-prev" href="?page=1">&laquo; Première page</a>
+                    <a class="btn-prev" href="?page={{ remote_requests.previous_page_number }}">< Page précédente</a>
+                {% endif %}
 
-        {% if pending_requests.has_next %}
-            <a class="btn-next" href="?page={{ pending_requests.next_page_number }}">Page suivante ></a>
-            <a class="btn-next" href="?page={{ pending_requests.paginator.num_pages }}">Dernière page &raquo;</a>
-        {% endif %}
-    </div>
-</div>
-
+                {% if remote_requests.has_next %}
+                    <a class="btn-next" href="?page={{ remote_requests.next_page_number }}">Page suivante ></a>
+                    <a class="btn-next" href="?page={{ remote_requests.paginator.num_pages }}">Dernière page &raquo;</a>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <p>Vous n'avez pas la permission de consulter cette page.</p>
+    {% endif %}
 {% endblock %}

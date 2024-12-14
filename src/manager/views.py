@@ -60,7 +60,9 @@ def send_status_update_email(self, remote_requests):
 # This function returns the number of pending remote work requests if the user is a manager.
 
 def pending_requests_count(user):
-    return RemoteRequest.objects.filter(status='pending').count() if user.is_manager else 0
+    if user.is_manager:
+        return RemoteRequest.objects.filter(status='pending', employee__center=user.center).count()
+    return 0
 
 
 # This function returns a list of dates for the 5-day work week starting from the provided date.
@@ -107,15 +109,15 @@ def update_remote_days(employee, selected_dates, remove, request):
             if created:  # Si une nouvelle demande de télétravail a été créée
                 new_requests.append(remote_request)  # Ajouter à la liste des nouvelles demandes
 
-    # Si de nouvelles demandes ont été créées, envoyer un email
     if new_requests:
-        managers = Employee.objects.filter(is_manager=True)
+        # Filter managers by the same center as the employee
+        managers = Employee.objects.filter(is_manager=True, center=employee.center)
 
         for manager in managers:
             context = {
                 'employee': employee,
-                'dates': [r.remote_day.date.strftime("%d %B %Y") for r in new_requests],  # Passer toutes les dates de la liste
-                'comments': [r.comment for r in new_requests],  # Passer tous les commentaires de la liste
+                'dates': [r.remote_day.date.strftime("%d %B %Y") for r in new_requests],
+                'comments': [r.comment for r in new_requests],
             }
 
             email_body = render_to_string('requests_email.html', context)
@@ -185,10 +187,10 @@ def calendar(request, next_week=0):
     today = date.today()
 
     if show_remote:
-        # Get a queryset that only keeps Employees having an approved remote day for today
         employees = Employee.objects.filter(
             username__icontains=cleaned_query,
             is_superuser=False,
+            center=request.user.center,  # Filter by center
             remote_days__date=today,
             remote_requests__status="approved",
             remote_requests__remote_day__date=today
@@ -196,7 +198,8 @@ def calendar(request, next_week=0):
     else:
         employees = Employee.objects.filter(
             username__icontains=cleaned_query,
-            is_superuser=False
+            is_superuser=False,
+            center=request.user.center  # Filter by center
         )
 
     week_days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
@@ -263,14 +266,19 @@ def requests(request):
     if not request.user.is_manager:
         return redirect(reverse_lazy('calendar'))
 
-    pending_requests_list = RemoteRequest.objects.filter(status='pending').order_by('id')
-    paginator = Paginator(pending_requests_list, 5)
+    # Filtrer les demandes par centre et statut
+    pending_requests_list = RemoteRequest.objects.filter(
+        status='pending',
+        employee__center=request.user.center  # Vérification du centre
+    ).order_by('id')
 
+    # Pagination
+    paginator = Paginator(pending_requests_list, 5)  # 5 demandes par page
     page_number = request.GET.get('page')
     pending_requests = paginator.get_page(page_number)
 
     context = {
-        'pending_requests': pending_requests,
+        'pending_requests': pending_requests,  # Variable utilisée dans le template
         'pending_requests_count': pending_requests_count(request.user),
     }
 
