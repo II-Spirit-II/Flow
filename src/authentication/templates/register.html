@@ -57,6 +57,14 @@
                 </select>
             </div>
 
+            <div class="filter-container">
+                <select class="select" name="center" id="center">
+                    {% for center in centers %}
+                    <option value="{{ center.id }}">{{ center.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <button class="btn-login" type="submit">S'inscrire</button>
         </form>
     </div>

@@ -2,6 +2,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 
+class Center(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class RemoteDay(models.Model):
     date = models.DateField(unique=True)
@@ -9,15 +14,14 @@ class RemoteDay(models.Model):
     def __str__(self):
         return self.date.strftime('%Y-%m-%d')
 
-
 class Employee(AbstractUser):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     is_manager = models.BooleanField(default=False)
     remote_days = models.ManyToManyField(RemoteDay, blank=True)
+    center = models.ForeignKey(Center, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.username
-
 
 class RemoteRequest(models.Model):
     STATUS_CHOICES = [

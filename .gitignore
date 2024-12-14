@@ -2,7 +2,7 @@
 .idea/
 
 # SQLite database
-*.sqlite3
+src/db.sqlite3
 
 # Virtual environment
 venv/
