@@ -53,7 +53,7 @@ header {
     z-index: 100;
 }
 
-header .logo {*
+header .logo {
     align-self: center;
     height: 40px;
     cursor: pointer;
@@ -351,6 +351,24 @@ table tbody td.today {
 table tbody td.current-user {
     background: linear-gradient(to right, #7b00e0, #1e90ff);
     color: var(--text-color);
+}
+
+table tbody td {
+    width: 100%;
+    padding: 1em;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+/* Apply hover effect only to cells with links */
+table tbody td a:hover {
+    transform: scale(1.05);
+}
+
+/* Links in table cells */
+table tbody td a {
+    color: var(--text-color);
+    text-decoration: none;
 }
 
 .remote-day {

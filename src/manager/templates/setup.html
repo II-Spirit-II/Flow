@@ -46,8 +46,13 @@
         <input class="comment" type="text" name="comment" placeholder="Commentaire (facultatif)">
 
         <div class="button-container">
-            <button class="btn" type="submit">Demander un télétravail</button>
-            <button class="withdraw" name="mark_on_site" value="1">Supprimer mon télétravail</button>
+            {% if request.user.is_manager and request.user != employee %}
+                <button class="btn" type="submit">Mettre en Télétravail</button>
+                <button class="withdraw" name="mark_on_site" value="1">Mettre en Présentiel</button>
+            {% else %}
+                <button class="btn" type="submit">Demander un télétravail</button>
+                <button class="withdraw" name="mark_on_site" value="1">Supprimer le télétravail</button>
+            {% endif %}
         </div>
 
     </form>

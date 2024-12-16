@@ -38,4 +38,5 @@ urlpatterns = [
     path('requests/approve/<int:request_id>/', manager_views.handle_request, name='handle_request'),
     path('requests/reject/<int:request_id>/', manager_views.handle_request, name='handle_request'),
     path('requests_status/', manager_views.requests_status, name='requests_status'),
+    path('manager/setup/<uuid:employee_uuid>/', manager_views.manager_setup, name='manager_setup'),
 ]

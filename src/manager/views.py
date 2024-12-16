@@ -109,7 +109,8 @@ def update_remote_days(employee, selected_dates, remove, request):
             if created:  # Si une nouvelle demande de télétravail a été créée
                 new_requests.append(remote_request)  # Ajouter à la liste des nouvelles demandes
 
-    if new_requests:
+    # Skip sending emails and notifications if the request is made by a manager
+    if not request.user.is_manager and new_requests:
         # Filter managers by the same center as the employee
         managers = Employee.objects.filter(is_manager=True, center=employee.center)
 
@@ -365,3 +366,36 @@ def handle_request(request, request_id):
         pass  # Ignorer l'erreur d'envoi de courrier électronique
 
     return redirect('requests')
+
+@login_required
+@user_passes_test(lambda u: u.is_manager)
+def manager_setup(request, employee_uuid, next_week=0):
+    employee = get_object_or_404(Employee, uuid=employee_uuid)
+
+    today = date.today()
+    week_start = today - timedelta(days=today.weekday()) + timedelta(weeks=next_week)
+    date_range = get_date_range(week_start)
+    fr_holidays = holidays.France(years=[today.year, today.year + 1])
+    formatted_holidays = [h.strftime('%Y-%m-%d') for h in fr_holidays]
+
+    if request.method == 'POST':
+        selected_date_strings = request.POST.getlist('remote_days')
+        selected_dates = [datetime.strptime(date_str, '%d %B %Y').date() for date_str in selected_date_strings]
+        remove = request.POST.get('mark_on_site')
+        update_remote_days(employee, selected_dates, remove, request)
+        employee.save()
+        return redirect('calendar')
+
+    context = {
+        'date_range': date_range,
+        'selected_dates': employee.remote_days.values_list('date', flat=True),
+        'next_week': next_week,
+        'employee': employee,
+        'week_days': ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"],
+        'week_dates': date_range,
+        'today': today,
+        'pending_requests_count': pending_requests_count(request.user),
+        'holidays': formatted_holidays,
+    }
+
+    return render(request, 'setup.html', context)
