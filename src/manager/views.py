@@ -219,9 +219,12 @@ def calendar(request, next_week=0):
     week_start = today - timedelta(days=today.weekday()) + timedelta(weeks=next_week)
     week_dates = get_date_range(week_start)
     fr_holidays = holidays.France(years=[d.year for d in week_dates])
+    
+    # Update the remote_employee_count to filter by the user's center
     remote_employee_count = RemoteRequest.objects.filter(
         status='approved',
         remote_day__date=today,
+        employee__center=request.user.center  # Filter by center
     ).count()
 
     context = {
